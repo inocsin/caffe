@@ -1,8 +1,9 @@
+#ifdef USE_NNPACK
 #include <algorithm>
 #include <vector>
 
 #include "caffe/layers/nnpack_relu_layer.hpp"
-
+#include "nnpack.h"
 namespace caffe {
 
 
@@ -57,3 +58,4 @@ void NNPackReLULayer<float>::Backward_cpu(const vector<Blob<float>*>& top,
 INSTANTIATE_CLASS(NNPackReLULayer);
 
 }  // namespace caffe
+#endif

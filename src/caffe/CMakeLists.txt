@@ -28,6 +28,7 @@ target_include_directories(caffe ${Caffe_INCLUDE_DIRS}
                                  $<BUILD_INTERFACE:${Caffe_INCLUDE_DIR}>
                                  $<INSTALL_INTERFACE:include>)
 target_compile_definitions(caffe ${Caffe_DEFINITIONS})
+MESSAGE(STATUS "target_compile_definitions in /src/caffe/CMakeLists.txt" ${Caffe_DEFINITIONS})
 if(Caffe_COMPILE_OPTIONS)
   target_compile_options(caffe ${Caffe_COMPILE_OPTIONS})
 endif()
