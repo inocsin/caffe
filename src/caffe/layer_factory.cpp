@@ -73,12 +73,11 @@ shared_ptr<Layer<Dtype> > GetConvolutionLayer(
     
 #ifdef USE_NNPACK
   } else if (engine == ConvolutionParameter_Engine_NNPACK) {
-    LOG(INFO) << "Creating NNPACK version of ConvolutionLayer";
     // If we're in CPU mode and on supported processor, we can use NNPACK.
     // Otherwise, we can't fall-through (since we'll get an unknown
     // layer, so just return the default ConvolutionLayer
     if ((Caffe::mode() == Caffe::CPU) && Caffe::nnpack_supported<Dtype>()) {
-      LOG(INFO) << "Successfully created NNPACK version of ConvolutionLayer";
+      LOG(INFO) << "Creating NNPACK version of ConvolutionLayer";
         return shared_ptr<Layer<Dtype> >(
           new NNPackConvolutionLayer<Dtype>(param));
     }
@@ -108,6 +107,9 @@ shared_ptr<Layer<Dtype> > GetPoolingLayer(const LayerParameter& param) {
     engine = PoolingParameter_Engine_CAFFE;
 #ifdef USE_CUDNN
     engine = PoolingParameter_Engine_CUDNN;
+#endif
+#ifdef USE_NNPACK
+    engine = PoolingParameter_Engine_NNPACK;
 #endif
   }
   if (engine == PoolingParameter_Engine_CAFFE) {
@@ -154,6 +156,9 @@ shared_ptr<Layer<Dtype> > GetInnerProductLayer(const LayerParameter& param) {
   InnerProductParameter_Engine engine = param.inner_product_param().engine();
   if (engine == InnerProductParameter_Engine_DEFAULT) {
     engine = InnerProductParameter_Engine_CAFFE;
+#ifdef USE_NNPACK
+    engine = InnerProductParameter_Engine_NNPACK;
+#endif
   }
   if (engine == InnerProductParameter_Engine_CAFFE) {
     return shared_ptr<Layer<Dtype> >(new InnerProductLayer<Dtype>(param));
@@ -222,6 +227,9 @@ shared_ptr<Layer<Dtype> > GetReLULayer(const LayerParameter& param) {
     engine = ReLUParameter_Engine_CAFFE;
 #ifdef USE_CUDNN
     engine = ReLUParameter_Engine_CUDNN;
+#endif
+#ifdef USE_NNPACK
+    engine = ReLUParameter_Engine_NNPACK;
 #endif
   }
   if (engine == ReLUParameter_Engine_CAFFE) {
