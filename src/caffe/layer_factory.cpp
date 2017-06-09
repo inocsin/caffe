@@ -63,15 +63,22 @@ shared_ptr<Layer<Dtype> > GetConvolutionLayer(
       engine = ConvolutionParameter_Engine_CUDNN;
     }
 #endif
+#ifdef USE_NNPACK
+    engine = ConvolutionParameter_Engine_NNPACK;
+#endif
   }
   if (engine == ConvolutionParameter_Engine_CAFFE) {
+    LOG(INFO) << "Creating CPU version of ConvolutionLayer";
     return shared_ptr<Layer<Dtype> >(new ConvolutionLayer<Dtype>(param));
+    
 #ifdef USE_NNPACK
   } else if (engine == ConvolutionParameter_Engine_NNPACK) {
+    LOG(INFO) << "Creating NNPACK version of ConvolutionLayer";
     // If we're in CPU mode and on supported processor, we can use NNPACK.
     // Otherwise, we can't fall-through (since we'll get an unknown
     // layer, so just return the default ConvolutionLayer
     if ((Caffe::mode() == Caffe::CPU) && Caffe::nnpack_supported<Dtype>()) {
+      LOG(INFO) << "Successfully created NNPACK version of ConvolutionLayer";
         return shared_ptr<Layer<Dtype> >(
           new NNPackConvolutionLayer<Dtype>(param));
     }
