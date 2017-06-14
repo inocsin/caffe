@@ -75,6 +75,11 @@ class LayerRegistry {
   static shared_ptr<Layer<Dtype> > CreateLayer(const LayerParameter& param) {
     if (Caffe::root_solver()) {
       LOG(INFO) << "Creating layer " << param.name();
+      // if(param.type() == "Convolution") {
+      //     ConvolutionParameter conv_param = param.convolution_param();
+      //     ConvolutionParameter_Engine engine = conv_param.engine();
+      //     LOG(INFO) << "ConvolutionParameter_Engine " << engine ;
+      // }
     }
     const string& type = param.type();
     CreatorRegistry& registry = Registry();
