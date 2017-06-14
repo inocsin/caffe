@@ -2,7 +2,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
-
+#include <iostream>
 #include "nnpack.h"
 
 #include "caffe/layers/nnpack_convolution_layer.hpp"
@@ -61,8 +61,10 @@ void caffe_nnp_convolution_forward(
     Blob<float>* top) {
   VLOG(1) << "NNPack Convolution Algo:"
           << NNPACKConvolutionParameter_Algorithm_Name(algo);
+  LOG(INFO) << "NNPack Convolution Algo:" << NNPACKConvolutionParameter_Algorithm_Name(algo);
   VLOG(1) << "NNPack Convolution KTS:"
           << NNPACKConvolutionParameter_KernelTransformStrategy_Name(kts);
+  LOG(INFO) << "NNPack Convolution KTS:" << NNPACKConvolutionParameter_KernelTransformStrategy_Name(kts);
   const size_t batch_size = bottom.num();
   const size_t input_channels = bottom.channels();
   const size_t output_channels = top->channels();
@@ -82,6 +84,7 @@ void caffe_nnp_convolution_forward(
 
   if (batch_size == 1) {
     VLOG(1) << "Running inference mode";
+    LOG(INFO) << "Running inference mode in caffe_nnp_convolution_forward()" << std::endl;
     const nnp_status status = nnp_convolution_inference(
         algorithm,
         kernel_transform_strategy,
@@ -100,6 +103,7 @@ void caffe_nnp_convolution_forward(
     CHECK_EQ(nnp_status_success, status);
   } else {
     VLOG(1) << "Running batched mode";
+    LOG(INFO) << "Running batched mode in caffe_nnp_convolution_forward()" << std::endl;
     const nnp_status status = nnp_convolution_output(
         algorithm,
         batch_size,
@@ -125,6 +129,7 @@ template <typename Dtype>
 void NNPackConvolutionLayer<Dtype>::Forward_cpu(
     const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
+  LOG(INFO) << "Dtype should be float, fall back ConvolutionLayer<Dtype>::Forward_cpu" << std::endl;
   return ConvolutionLayer<Dtype>::Forward_cpu(bottom, top);
 }
 
@@ -134,6 +139,7 @@ void NNPackConvolutionLayer<float>::Forward_cpu(
     const vector<Blob<float>*>& top) {
   if (!this->bias_term_) {
     VLOG(1) << "NNPACK Convolution requires a bias term, falling back";
+    LOG(INFO) << "NNPACK Convolution requires a bias term, fall back ConvolutionLayer<Dtype>::Forward_cpu" << std::endl;
     return ConvolutionLayer<float>::Forward_cpu(bottom, top);
   }
 
@@ -146,11 +152,13 @@ void NNPackConvolutionLayer<float>::Forward_cpu(
 
   if (!is_stride_1) {
     VLOG(1) << "NNPACK Convolution requires strdie 1, falling back";
+    LOG(INFO) << "Stride should be 1x1, fall back ConvolutionLayer<Dtype>::Forward_cpu" << std::endl;
     return ConvolutionLayer<float>::Forward_cpu(bottom, top);
   }
 
   CHECK(this->bias_term_);
   CHECK(is_stride_1);
+  LOG(INFO) << "NNPackConvolutionLayer<float>::Forward_cpu" << std::endl;
   for (int i = 0; i < bottom.size(); ++i) {
     caffe_nnp_convolution_forward(
         this->layer_param_.nnpack_convolution_param().algorithm(),
